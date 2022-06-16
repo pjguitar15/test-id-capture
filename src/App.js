@@ -80,10 +80,10 @@ function App() {
   return (
     <div className='App' style={{ padding: '50px' }}>
       <div className='row'>
-        <div className='col-6'>
+        <div className='col-lg-6'>
           <Camera />
         </div>
-        <div className='col-6'>
+        <div className='col-lg-6'>
           <h1>Result</h1>
           <p className='text-capitalize'>
             First name: <span className='text-capitalize'>{firstName}</span>
