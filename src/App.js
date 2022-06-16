@@ -4,6 +4,7 @@ import ReadText from 'text-from-image'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import test from './assets/me.jpg'
 import Camera from './Camera'
+import Tesseract from 'tesseract.js'
 
 function App() {
   const [firstName, setFirstName] = useState('')
@@ -14,34 +15,37 @@ function App() {
   const [countryCode, setCountryCode] = useState('')
   const [passportNum, setPassportNum] = useState('')
   const [birthday, setBirthday] = useState('')
+  const [cloudinaryRes, setCloudinaryRes] = useState('')
+
   useEffect(() => {
     console.log('scanning')
-    ReadText(test)
-      .then((res) => {
-        const split = res.split('\n')
-        const text = split[0]
+    if (cloudinaryRes) {
+      Tesseract.recognize(
+        cloudinaryRes,
+      ).then(({ data: { text } }) => {
+        const split = text.split('\n')
+        console.log(split)
+        const splittedText = split[0]
         const nextLine = split[1]
         console.log(split)
         // extract country
-        const resultCountry = text.slice(2, 5)
-        const startOfLastName = text.slice(5)
+        const resultCountry = splittedText.slice(2, 5)
+        const startOfLastName = splittedText.slice(5)
         const resultLastName = startOfLastName.slice(
           0,
           startOfLastName.indexOf('<')
         )
         const startOfFirstNameIndex =
           resultCountry.length + resultLastName.length + 4
-        const startOfFirstName = text.slice(startOfFirstNameIndex)
+        const startOfFirstName = splittedText.slice(startOfFirstNameIndex)
         const resultFirstName = startOfFirstName.slice(
           0,
           startOfFirstName.indexOf('<')
         )
-
         const passportNumber = nextLine.slice(
           0,
           nextLine.indexOf(resultCountry)
         )
-
         const startOfDateIndex = passportNumber.length + resultCountry.length
         const startOfDate = nextLine.slice(startOfDateIndex)
         const resultBirthday =
@@ -50,12 +54,9 @@ function App() {
           startOfDate.slice(2, 4) +
           '-' +
           startOfDate.slice(4, 6)
-
         const startOfExpiryIndexSearch =
           passportNumber.length + resultCountry.length + resultBirthday.length
-
         console.log(nextLine.slice(startOfExpiryIndexSearch))
-
         axios
           .get(`https://restcountries.com/v3.1/alpha?codes=${resultCountry}`)
           .then((res) => {
@@ -70,18 +71,18 @@ function App() {
           })
         // fetch country information
         // https://restcountries.com/v3.1/alpha?codes=phi
-
         console.log('scanning done')
       })
-      .catch((err) => {
-        console.log(err)
-      }, [])
-  }, [])
+    }
+  }, [cloudinaryRes])
   return (
     <div className='App' style={{ padding: '50px' }}>
       <div className='row'>
         <div className='col-lg-6'>
-          <Camera />
+          <Camera
+            cloudinaryRes={cloudinaryRes}
+            setCloudinaryRes={setCloudinaryRes}
+          />
         </div>
         <div className='col-lg-6'>
           <h1>Result</h1>

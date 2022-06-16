@@ -3,13 +3,13 @@ import Axios from 'axios'
 import { Button } from 'react-bootstrap'
 import Webcam from 'react-webcam'
 
-const Camera = () => {
+const Camera = ({ cloudinaryRes, setCloudinaryRes }) => {
   const [devices, setDevices] = useState([])
   const [selectedDeviceId, setSelectedDeviceId] = useState('')
   const [imgSrc, setImgSrc] = useState('')
-  const [cloudinaryRes, setCloudinaryRes] = useState('')
+  const [cameraHeight, setCameraHeight] = useState(0)
+  const [cameraWidth, setCameraWidth] = useState(0)
   const [cameraOn, setCameraOn] = useState(false)
-  const [currentDevice, setCurrentDevice] = useState()
   const webcamRef = useRef()
   const widthHeightRef = useRef()
 
@@ -27,7 +27,11 @@ const Camera = () => {
     navigator.mediaDevices.enumerateDevices().then(handleDevices)
   }, [handleDevices])
 
-  useEffect(() => {}, [devices])
+  useEffect(() => {
+    if (devices.length > 0) {
+      setSelectedDeviceId(devices[0].deviceId)
+    }
+  }, [devices])
 
   const capture = () => {
     const captured = webcamRef.current.getScreenshot()
@@ -69,9 +73,6 @@ const Camera = () => {
     }
   }, [imgSrc])
 
-  useEffect(() => {
-    setCurrentDevice(devices[1])
-  }, [devices])
   return (
     <div>
       <h4>Capture Photo</h4>
@@ -86,52 +87,54 @@ const Camera = () => {
           <img src={cloudinaryRes} alt='test' />
         </div>
       ) : (
-        <div>
-          <div ref={widthHeightRef} style={{ position: 'relative' }}>
-            <div
-              className='bg-dark'
-              style={{
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                height: '35%',
-                width: '100%',
-                opacity: '0.7',
-              }}
-            ></div>
-            <div
-              className='bg-dark'
-              style={{
-                position: 'absolute',
-                bottom: '0',
-                left: '0',
-                height: '35%',
-                width: '100%',
-                opacity: '0.7',
-              }}
-            ></div>
-            <Webcam
-              onPlay={handlePlay}
-              style={{ display: cameraOn ? 'block' : 'none' }}
-              ref={webcamRef}
-              audio={false}
-              height={'auto'}
-              screenshotFormat='image/jpeg'
-              width={'100%'}
-              videoConstraints={{
-                deviceId: currentDevice ? currentDevice.deviceId : '',
-              }}
-            />
-          </div>
-          <div className='mt-2'>
-            <Button
-              style={{ display: cameraOn ? 'block' : 'none' }}
-              onClick={capture}
-            >
-              Capture photo
-            </Button>
-          </div>
-        </div>
+        devices
+          .filter((item) => item.deviceId === selectedDeviceId)
+          .map((item, index) => (
+            <div key={index}>
+              <div ref={widthHeightRef} style={{ position: 'relative' }}>
+                <div
+                  className='bg-dark'
+                  style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    height: '35%',
+                    width: '100%',
+                    opacity: '0.7',
+                  }}
+                ></div>
+                <div
+                  className='bg-dark'
+                  style={{
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '0',
+                    height: '35%',
+                    width: '100%',
+                    opacity: '0.7',
+                  }}
+                ></div>
+                <Webcam
+                  onPlay={handlePlay}
+                  style={{ display: cameraOn ? 'block' : 'none' }}
+                  ref={webcamRef}
+                  audio={false}
+                  height={'auto'}
+                  screenshotFormat='image/jpeg'
+                  width={'100%'}
+                  videoConstraints={{ deviceId: item.deviceId }}
+                />
+              </div>
+              <div className='mt-2'>
+                <Button
+                  style={{ display: cameraOn ? 'block' : 'none' }}
+                  onClick={capture}
+                >
+                  Capture photo
+                </Button>
+              </div>
+            </div>
+          ))
       )}
     </div>
   )
