@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import ReadText from 'text-from-image'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import test from './assets/me.jpg'
 import Camera from './Camera'
 import Tesseract from 'tesseract.js'
 
@@ -68,9 +66,9 @@ function App() {
             setCountryCode(res.data[0].ccn3)
             setPassportNum(passportNumber)
             setBirthday(resultBirthday)
+          }).then((error) => {
+            console.log(error)
           })
-        // fetch country information
-        // https://restcountries.com/v3.1/alpha?codes=phi
         console.log('scanning done')
       })
     }

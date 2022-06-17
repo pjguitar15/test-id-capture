@@ -7,8 +7,6 @@ const Camera = ({ cloudinaryRes, setCloudinaryRes }) => {
   const [devices, setDevices] = useState([])
   const [selectedDeviceId, setSelectedDeviceId] = useState('')
   const [imgSrc, setImgSrc] = useState('')
-  const [cameraHeight, setCameraHeight] = useState(0)
-  const [cameraWidth, setCameraWidth] = useState(0)
   const [cameraOn, setCameraOn] = useState(false)
   const webcamRef = useRef()
   const widthHeightRef = useRef()
@@ -122,7 +120,10 @@ const Camera = ({ cloudinaryRes, setCloudinaryRes }) => {
                   height={'auto'}
                   screenshotFormat='image/jpeg'
                   width={'100%'}
-                  videoConstraints={{ deviceId: item.deviceId }}
+                  videoConstraints={{
+                    deviceId: item.deviceId,
+                    faceingMode: 'environment',
+                  }}
                 />
               </div>
               <div className='mt-2'>
